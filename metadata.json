@@ -1,0 +1,6 @@
+{
+  "name": "Info Presensi SKAPSA",
+  "description": "Aplikasi PWA Info Presensi SKAPSA untuk push notification presensi real-time guru, karyawan, siswa, dan tenaga non GTK.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
