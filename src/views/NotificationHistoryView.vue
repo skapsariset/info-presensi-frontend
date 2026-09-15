@@ -236,6 +236,10 @@
 					</div>
 				</div>
 
+				<div :class="['p-3 leading-relaxed', getStatusBodyStyle(selectedItem.status_presensi)]">
+					{{ selectedItem.body }}
+				</div>
+
 				<div class="space-y-2 text-xs">
 					<div class="flex justify-between py-2 border-b border-slate-100">
 						<span class="text-slate-400">Status Presensi</span>
@@ -372,10 +376,23 @@ function formatStatusLabel(jenisPresensi, statusPresensi) {
 	}
 }
 
+function getStatusBodyStyle(statusPresensi) {
+	switch (statusPresensi) {
+		case "tepat_waktu":
+			return "bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-800";
+		case "terlambat":
+			return "bg-yellow-50 rounded-xl border border-yellow-200 text-xs text-yellow-800";
+		case "cepat":
+			return "bg-orange-50 rounded-xl border border-orange-200 text-xs text-orange-800";
+		default:
+			return "bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-800";
+	}
+}
+
 function getStatusTagStyle(statusPresensi) {
 	switch (statusPresensi) {
 		case "tepat_waktu":
-			return " bg-emerald-50 text-emerald-700";
+			return "bg-emerald-50 text-emerald-700";
 		case "terlambat":
 			return "bg-yellow-50 text-yellow-700";
 		case "cepat":
