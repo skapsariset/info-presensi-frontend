@@ -19,7 +19,7 @@
 				<router-link
 					to="/notifications"
 					id="btn-shortcut-notifications"
-					class="flex items-center justify-between gap-4 p-4 rounded-xl bg-liear-to-br from-slate-900 to-blue-950 text-white shadow-md hover:shadow-lg hover:from-slate-800 hover:to-blue-900 transition shrink-0 cursor-pointer text-left group no-underline">
+					class="flex items-center justify-between gap-4 p-4 rounded-xl bg-linear-to-br from-slate-900 to-blue-950 text-white shadow-md hover:shadow-lg hover:from-slate-800 hover:to-blue-900 transition shrink-0 cursor-pointer text-left group no-underline">
 					<div class="flex items-center gap-3">
 						<div class="w-12 h-12 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 group-hover:scale-105 transition">
 							<el-icon :size="24"><BellFilled /></el-icon>
