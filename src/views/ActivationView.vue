@@ -261,7 +261,7 @@ function formatTypeLabel(type) {
 		case "guru":
 			return "Guru";
 		case "karyawan":
-			return "Karyawan";
+			return "Tenaga Kependidikan";
 		case "siswa":
 			return "Siswa";
 		case "non_gtk":

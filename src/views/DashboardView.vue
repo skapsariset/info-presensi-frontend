@@ -10,8 +10,8 @@
 					</div>
 					<h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Sistem Informasi & Notifikasi Presensi Real-Time</h2>
 					<p class="text-sm text-slate-600 mt-1.5 leading-relaxed">
-						Menyampaikan informasi presensi guru, karyawan, siswa, dan tenaga non GTK secara instan ke perangkat Anda melalui teknologi Web Push PWA, bahkan saat aplikasi dan
-						peramban sedang tertutup.
+						Menyampaikan informasi presensi guru, tenaga kependidikan, siswa, dan tenaga non GTK secara instan ke perangkat Anda melalui teknologi Web Push PWA, bahkan saat
+						aplikasi dan peramban sedang tertutup.
 					</p>
 				</div>
 
@@ -19,7 +19,7 @@
 				<router-link
 					to="/notifications"
 					id="btn-shortcut-notifications"
-					class="flex items-center justify-between gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-900 to-blue-950 text-white shadow-md hover:shadow-lg hover:from-slate-800 hover:to-blue-900 transition shrink-0 cursor-pointer text-left group no-underline">
+					class="flex items-center justify-between gap-4 p-4 rounded-xl bg-liear-to-br from-slate-900 to-blue-950 text-white shadow-md hover:shadow-lg hover:from-slate-800 hover:to-blue-900 transition shrink-0 cursor-pointer text-left group no-underline">
 					<div class="flex items-center gap-3">
 						<div class="w-12 h-12 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 group-hover:scale-105 transition">
 							<el-icon :size="24"><BellFilled /></el-icon>

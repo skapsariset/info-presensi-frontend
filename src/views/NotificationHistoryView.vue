@@ -322,7 +322,7 @@ function formatTypeLabel(type) {
 		case "guru":
 			return "Guru";
 		case "karyawan":
-			return "Karyawan";
+			return "Tenaga Kependidikan";
 		case "siswa":
 			return "Siswa";
 		case "non_gtk":
@@ -416,8 +416,8 @@ function formatRelativeTime(iso) {
 		if (diff < 60) return "Baru saja";
 		if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
 		if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
-		if (diffSec < 172800) return "Kemarin";
-		return `${Math.floor(diffSec / 86400)} hari lalu`;
+		if (diff < 172800) return "Kemarin";
+		return `${Math.floor(diff / 86400)} hari lalu`;
 	} catch {
 		return iso;
 	}
