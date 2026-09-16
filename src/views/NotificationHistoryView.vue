@@ -166,7 +166,7 @@
 							</div>
 
 							<!-- Main message body -->
-							<p class="text-xs sm:text-sm text-slate-600 line-clamp-2">
+							<p class="text-xs sm:text-sm text-slate-600 line-clamp-2 whitespace-pre-line">
 								{{ notif.body }}
 							</p>
 
@@ -236,7 +236,7 @@
 					</div>
 				</div>
 
-				<div :class="['p-3 leading-relaxed', getStatusBodyStyle(selectedItem.status_presensi)]">
+				<div :class="['p-3 leading-relaxed whitespace-pre-line', getStatusBodyStyle(selectedItem.status_presensi)]">
 					{{ selectedItem.body }}
 				</div>
 

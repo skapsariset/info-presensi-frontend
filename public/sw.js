@@ -1,5 +1,5 @@
 // Service Worker for Info Presensi SKAPSA
-const CACHE_NAME = 'skapsa-pwa-v6_rev';
+const CACHE_NAME = 'skapsa-pwa-v7';
 const ASSETS_TO_CACHE = [
 	'/',
 	'/index.html',
@@ -216,7 +216,7 @@ self.addEventListener('push', (event) => {
 		},
 		tag: pushData.tag || 'presensi-' + Date.now(),
 		renotify: true,
-		requireInteraction: false
+		requireInteraction: true
 	};
 
 	event.waitUntil(
