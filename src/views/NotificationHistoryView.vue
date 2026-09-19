@@ -404,7 +404,7 @@ function getStatusTagStyle(statusPresensi) {
 
 function getInitials(name) {
 	if (!name) return "PR";
-	const parts = name.trim().split(" ");
+	const parts = name.replace(/\,.*/, "").trim().split(" ");
 	if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
 	return name.slice(0, 2).toUpperCase();
 }

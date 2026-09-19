@@ -1,5 +1,5 @@
 // Service Worker for Info Presensi SKAPSA
-const CACHE_NAME = 'skapsa-pwa-v7';
+const CACHE_NAME = 'skapsa-pwa-v8';
 const ASSETS_TO_CACHE = [
 	'/',
 	'/index.html',
@@ -144,6 +144,11 @@ self.addEventListener('activate', (event) => {
 // 3. Fetch Event (Cache-first for assets, network-first for API)
 self.addEventListener('fetch', (event) => {
 	const url = new URL(event.request.url);
+
+	// PERBAIKAN: Jangan proses atau cache request selain http dan https (seperti chrome-extension:// atau data:)
+	if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+		return;
+	}
 
 	// Do not cache API calls
 	if (url.pathname.startsWith('/presensi-api') || url.pathname.startsWith('/push')) {

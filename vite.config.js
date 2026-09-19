@@ -8,8 +8,8 @@ export default defineConfig(({ mode }) => {
 
 	const PORT = Number(env.VITE_PORT) || 8097;
 	const HOST = env.VITE_HOST || '0.0.0.0';
-	const API_PREFIX = env.VITE_BACKEND_TARGET_URL || '/presensi-api';
-	const BACKEND_TARGET = env.VITE_BACKEND_TARGET || 'http://localhost:3011';
+	const API_PREFIX = env.VITE_API_BASE_URL || '/presensi-api';
+	const BACKEND_TARGET = env.VITE_BACKEND_TARGET_URL || 'http://localhost:3011';
 
 	return {
 		plugins: [

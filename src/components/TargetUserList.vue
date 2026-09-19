@@ -22,6 +22,18 @@
 			</p>
 		</div>
 
+		<!-- Banner Mode Offline / Cache jika koneksi terputus -->
+		<div
+			v-if="subscriptionStore.isOfflineCache && subscriptionStore.targetCount > 0"
+			id="banner-target-offline-cache"
+			class="mt-3 p-3 bg-amber-50/80 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+			<el-icon class="mt-0.5 text-amber-600 shrink-0"><WarningFilled /></el-icon>
+			<p class="leading-relaxed">
+				<strong>Pemberitahuan Offline:</strong> Menampilkan target presensi yang tersimpan pada memori lokal perangkat karena server presensi belum berhasil dijangkau. Data
+				pendaftaran Anda di server tidak terhapus.
+			</p>
+		</div>
+
 		<!-- Empty State jika belum ada target -->
 		<div v-if="subscriptionStore.targetCount === 0" id="empty-state-targets" class="py-10 text-center text-slate-400">
 			<el-icon :size="40" class="text-slate-300 mb-2"><UserFilled /></el-icon>
@@ -85,7 +97,7 @@
 <script setup>
 import { useSubscriptionStore } from "../stores/subscriptionStore.js";
 import { ElMessage } from "element-plus";
-import { User, UserFilled, InfoFilled, Close } from "@element-plus/icons-vue";
+import { User, UserFilled, InfoFilled, Close, WarningFilled } from "@element-plus/icons-vue";
 
 const subscriptionStore = useSubscriptionStore();
 
@@ -135,11 +147,9 @@ function getTypeTagStyle(type) {
 }
 
 function getInitials(name) {
-	if (!name) return "U";
-	const parts = name.trim().split(" ");
-	if (parts.length >= 2) {
-		return (parts[0][0] + parts[1][0]).toUpperCase();
-	}
+	if (!name) return "PR";
+	const parts = name.replace(/\,.*/, "").trim().split(" ");
+	if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
 	return name.slice(0, 2).toUpperCase();
 }
 

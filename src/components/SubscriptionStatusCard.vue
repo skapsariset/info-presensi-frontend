@@ -18,6 +18,7 @@
 						<el-tag id="tag-sub-status" :type="subscriptionStore.isSubscribed ? 'success' : 'info'" effect="dark" round class="font-semibold text-xs">
 							{{ subscriptionStore.isSubscribed ? "AKTIF" : "BELUM TERDAFTAR" }}
 						</el-tag>
+						<el-tag v-if="subscriptionStore.isOfflineCache" type="warning" effect="plain" round class="font-semibold text-[11px]"> OFFLINE (CACHE) </el-tag>
 					</div>
 					<p class="text-xs text-slate-500 mt-0.5">
 						{{
@@ -55,6 +56,19 @@
 			</div>
 		</div>
 
+		<!-- Offline Cache Banner jika terjadi kegagalan koneksi ke server -->
+		<div
+			v-if="subscriptionStore.isOfflineCache"
+			id="banner-subscription-offline-cache"
+			class="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
+			<el-icon class="mt-0.5 text-amber-600 shrink-0"><WarningFilled /></el-icon>
+			<div class="leading-relaxed">
+				<strong class="font-bold text-amber-950">Mode Data Lokal (Server Belum Terjangkau):</strong>
+				Perangkat sedang mengalami kendala rute jaringan/internet menuju server presensi. Menampilkan <strong>{{ subscriptionStore.targetCount }} target presensi</strong> dari data
+				lokal perangkat. Data Anda tidak hilang.
+			</div>
+		</div>
+
 		<!-- Metadata Footer: Last Synced & Test Notification -->
 		<div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500">
 			<div class="flex items-center gap-2">
@@ -85,17 +99,24 @@ import { useSubscriptionStore } from "../stores/subscriptionStore.js";
 import { useNotificationStore } from "../stores/notificationStore.js";
 import pushService from "../services/pushService.js";
 import { ElMessage } from "element-plus";
-import { BellFilled, MuteNotification, Refresh, Delete, Notification } from "@element-plus/icons-vue";
+import { BellFilled, MuteNotification, Refresh, Delete, Notification, WarningFilled } from "@element-plus/icons-vue";
 
 const subscriptionStore = useSubscriptionStore();
 const notificationStore = useNotificationStore();
 
 async function handleSync() {
-	try {
-		await subscriptionStore.syncSubscription();
+	const result = await subscriptionStore.syncSubscription();
+	if (result.success) {
 		ElMessage.success("Sinkronisasi data subscription berhasil!");
-	} catch (e) {
-		ElMessage.error(e.message || "Gagal sinkronisasi data.");
+	} else if (result.isOffline) {
+		ElMessage.warning({
+			message: "Gagal terhubung ke server (Timeout / Masalah Jaringan). Data lokal target tetap aman.",
+			duration: 5000,
+		});
+	} else if (result.classified?.category === "AUTH_REJECTED") {
+		ElMessage.info("Sesi subscription belum terdaftar atau telah direset di server.");
+	} else {
+		ElMessage.error(result.message || "Gagal sinkronisasi data.");
 	}
 }
 
