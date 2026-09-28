@@ -96,10 +96,30 @@ export const pushService = {
 	 */
 	async requestNotificationPermission() {
 		if (!('Notification' in window)) {
-			throw new Error('Browser ini tidak mendukung notifikasi sistem.');
+			const err = new Error('Browser ini tidak mendukung notifikasi sistem.');
+			err.isUnsupported = true;
+			err.code = 'NOTIFICATION_UNSUPPORTED';
+			throw err;
+		}
+
+		// Jika izin telah diblokir/denied sebelumnya, browser tidak akan pernah memunculkan popup asli lagi
+		if (Notification.permission === 'denied') {
+			const err = new Error('Izin notifikasi diblokir atau dinonaktifkan di browser. Silakan aktifkan izin notifikasi melalui Pengaturan Situs.');
+			err.isPermissionError = true;
+			err.permission = 'denied';
+			err.code = 'PERMISSION_DENIED';
+			throw err;
 		}
 
 		const permission = await Notification.requestPermission();
+		if (permission === 'denied') {
+			const err = new Error('Izin notifikasi ditolak oleh pengguna pada browser.');
+			err.isPermissionError = true;
+			err.permission = 'denied';
+			err.code = 'PERMISSION_DENIED';
+			throw err;
+		}
+
 		return permission;
 	},
 

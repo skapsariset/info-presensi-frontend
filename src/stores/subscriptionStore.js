@@ -139,7 +139,9 @@ export const useSubscriptionStore = defineStore('subscription', {
 				this.refreshCapabilities();
 
 				if (permission !== 'granted') {
-					throw new Error('Izin notifikasi ditolak oleh pengguna pada browser. Mohon izinkan notifikasi untuk menerima info presensi.');
+					const permErr = new Error('Izin notifikasi ditolak oleh pengguna pada browser. Mohon izinkan notifikasi untuk menerima info presensi.');
+					permErr.isPermissionError = true;
+					throw permErr;
 				}
 
 				// 2. Berlangganan ke PushManager
@@ -176,7 +178,11 @@ export const useSubscriptionStore = defineStore('subscription', {
 				const classified = classifyApiError(err);
 				let userFriendlyMsg = classified.message;
 
-				if (classified.isNetworkError) {
+				if (classified.isPermissionError) {
+					userFriendlyMsg = 'Izin notifikasi dinonaktifkan atau diblokir di browser. Mohon aktifkan izin notifikasi pada Pengaturan Situs untuk mengaktifkan push subscription.';
+				} else if (classified.isUnsupported) {
+					userFriendlyMsg = 'Perangkat atau browser ini tidak mendukung Push Notification.';
+				} else if (classified.isNetworkError) {
 					userFriendlyMsg = 'Gagal terhubung ke server presensi (Koneksi Terputus/Timeout). Token aktivasi Anda BELUM TERPAKAI dan TIDAK HANGUS. Silakan coba kembali saat jaringan stabil.';
 				} else if (classified.category === 'BUSINESS_REJECTED') {
 					userFriendlyMsg = classified.message || 'Token aktivasi tidak valid, sudah pernah digunakan, atau kedaluwarsa.';
@@ -185,6 +191,7 @@ export const useSubscriptionStore = defineStore('subscription', {
 				this.error = userFriendlyMsg;
 				const enhancedError = new Error(userFriendlyMsg);
 				enhancedError.classified = classified;
+				enhancedError.isPermissionError = classified.isPermissionError || err.isPermissionError || false;
 				throw enhancedError;
 			} finally {
 				this.loading = false;

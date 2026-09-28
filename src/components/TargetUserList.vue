@@ -69,7 +69,7 @@
 								>ID Presensi: <strong class="text-slate-600">{{ target.user_presensi_id }}</strong></span
 							>
 							<span v-if="target.type === 'siswa'"
-								>Kelas/NIS: <strong class="text-slate-600">{{ target.nama_rombel || "-" }} • {{ target.nis || "-" }}</strong></span
+								>Kelas/NIS: <strong class="text-slate-600">{{ target.nama_rombel || "-" }} · {{ target.nis || "-" }}</strong></span
 							>
 							<span v-if="target.type === 'siswa'" class="text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded text-[11px] font-medium"> Penerima: Wali Murid </span>
 						</div>
@@ -79,6 +79,7 @@
 				<!-- Remove target button -->
 				<el-popconfirm
 					:title="`Hapus notifikasi untuk ${target.nama}?`"
+					width="220"
 					confirm-button-text="Hapus"
 					cancel-button-text="Batal"
 					confirm-button-type="danger"

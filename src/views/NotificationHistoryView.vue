@@ -26,6 +26,7 @@
 
 				<el-popconfirm
 					title="Hapus seluruh riwayat notifikasi dari perangkat ini?"
+					width="220"
 					confirm-button-text="Ya, Hapus Semua"
 					cancel-button-text="Batal"
 					confirm-button-type="danger"
@@ -174,11 +175,11 @@
 							<div class="flex items-center gap-3 text-xs text-slate-400 pt-1 flex-wrap">
 								<span class="font-semibold text-slate-700" v-if="notif.type === 'siswa' && notif.nama_rombel"> {{ notif.nama }} ({{ notif.nama_rombel }}) </span>
 								<span class="font-semibold text-slate-700" v-else> {{ notif.nama }}</span>
-								<span>•</span>
+								<span>·</span>
 								<span class="text-slate-500">
 									{{ formatRelativeTime(notif.timestamp) }}
 								</span>
-								<span>•</span>
+								<span>·</span>
 								<span :class="['inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded uppercase', getStatusTagStyle(notif.status_presensi)]">
 									{{ formatStatusLabel(notif.jenis_presensi, notif.status_presensi) || "HADIR" }}
 								</span>
@@ -231,8 +232,12 @@
 								{{ formatTypeLabel(selectedItem.type) }}
 							</span>
 						</div>
-						<p class="text-xs text-slate-500 mt-0.5">ID: {{ selectedItem.user_presensi_id }}</p>
-						<p class="text-xs text-slate-500 mt-0.5" v-if="selectedItem.type === 'siswa'">Kelas/NIS: {{ selectedItem.nama_rombel }} • {{ selectedItem.nis }}</p>
+						<p class="text-xs text-slate-500 mt-0.5">
+							ID: <strong>{{ selectedItem.user_presensi_id }}</strong>
+						</p>
+						<p class="text-xs text-slate-500 mt-0.5" v-if="selectedItem.type === 'siswa'">
+							Kelas/NIS: <strong>{{ selectedItem.nama_rombel }} · {{ selectedItem.nis }}</strong>
+						</p>
 					</div>
 				</div>
 

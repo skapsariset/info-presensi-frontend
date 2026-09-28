@@ -42,6 +42,7 @@
 				<el-popconfirm
 					v-if="subscriptionStore.isSubscribed"
 					title="Nonaktifkan subscription ini beserta seluruh target presensi?"
+					width="220"
 					confirm-button-text="Ya, Nonaktifkan"
 					cancel-button-text="Batal"
 					confirm-button-type="danger"

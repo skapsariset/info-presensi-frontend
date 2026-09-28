@@ -141,7 +141,7 @@
 								ID Presensi: <strong class="text-slate-700 font-mono">{{ tokenData.detail_target?.user_presensi_id }}</strong>
 							</p>
 							<p class="text-xs text-slate-500" v-if="tokenData.detail_target?.type === 'siswa'">
-								Kelas/NIS: <strong class="text-slate-700 font-mono">{{ tokenData.detail_target?.nama_rombel || "-" }} • {{ tokenData.detail_target?.nis || "-" }}</strong>
+								Kelas/NIS: <strong class="text-slate-700 font-mono">{{ tokenData.detail_target?.nama_rombel || "-" }} · {{ tokenData.detail_target?.nis || "-" }}</strong>
 							</p>
 						</div>
 					</div>
@@ -199,7 +199,7 @@
 								ID Presensi: <strong class="text-slate-700 font-mono">{{ tokenData.detail_target?.user_presensi_id }}</strong>
 							</p>
 							<p class="text-xs text-slate-500" v-if="tokenData.detail_target?.type === 'siswa'">
-								Kelas/NIS: <strong class="text-slate-700 font-mono">{{ tokenData.detail_target?.nama_rombel || "-" }} • {{ tokenData.detail_target?.nis || "-" }}</strong>
+								Kelas/NIS: <strong class="text-slate-700 font-mono">{{ tokenData.detail_target?.nama_rombel || "-" }} · {{ tokenData.detail_target?.nis || "-" }}</strong>
 							</p>
 						</div>
 					</div>
@@ -268,6 +268,63 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Dialog Panduan Mengaktifkan Izin Notifikasi jika status 'denied' -->
+		<el-dialog v-model="showPermissionGuideModal" title="Panduan Mengizinkan Notifikasi" width="90%" class="rounded-2xl! max-w-lg" :show-close="true" append-to-body>
+			<div class="space-y-4 text-slate-700 text-sm">
+				<div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 leading-relaxed flex items-start gap-2">
+					<el-icon class="mt-0.5 text-amber-600 shrink-0"><WarningFilled /></el-icon>
+					<div>
+						<strong>Mengapa popup izin browser tidak muncul otomatis?</strong><br />
+						Standar keamanan browser (Chrome, Safari, Firefox, Edge) sengaja memblokir popup otomatis jika perizinan notifikasi pernah ditolak atau dimatikan sebelumnya. Ikuti
+						petunjuk singkat di bawah untuk mengaktifkannya:
+					</div>
+				</div>
+
+				<el-tabs v-model="activeGuideTab" class="permission-guide-tabs">
+					<!-- Tab Android & Chrome Mobile -->
+					<el-tab-pane label="Chrome / Android" name="android">
+						<ol class="list-decimal list-inside space-y-2 text-xs leading-relaxed text-slate-600 pl-1">
+							<li>Ketuk ikon <strong>Gembok (🔒)</strong> atau <strong>Setelan Situs (⚙️ / 🎚️)</strong> di sebelah kiri bilah alamat URL (di samping alamat web).</li>
+							<li>Pilih menu <strong>Izin</strong> (Permissions) atau <strong>Setelan Situs</strong> (Site settings).</li>
+							<li>Cari opsi <strong>Notifikasi</strong> (Notifications) lalu ubah dari <em>Diblokir</em> menjadi <strong>Izinkan (Allow)</strong>.</li>
+							<li>Kembali ke halaman ini lalu ketuk tombol <strong>"Saya Sudah Mengizinkan, Coba Lagi"</strong> di bawah.</li>
+						</ol>
+					</el-tab-pane>
+
+					<!-- Tab iOS / iPhone / Safari -->
+					<el-tab-pane label="iPhone / iOS" name="ios">
+						<ol class="list-decimal list-inside space-y-2 text-xs leading-relaxed text-slate-600 pl-1">
+							<li>
+								Jika belum dipasang sebagai PWA, ketuk tombol <strong>Bagikan (Share)</strong> di Safari, lalu pilih <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.
+							</li>
+							<li>Buka menu <strong>Pengaturan (Settings)</strong> iPhone Anda.</li>
+							<li>Pilih menu <strong>Pemberitahuan (Notifications)</strong>, lalu temukan nama aplikasi presensi ini.</li>
+							<li>Aktifkan tombol <strong>"Izinkan Pemberitahuan" (Allow Notifications)</strong>.</li>
+							<li>Buka kembali aplikasi dan ketuk tombol <strong>"Saya Sudah Mengizinkan, Coba Lagi"</strong> di bawah.</li>
+						</ol>
+					</el-tab-pane>
+
+					<!-- Tab Komputer / Desktop -->
+					<el-tab-pane label="Laptop / PC" name="desktop">
+						<ol class="list-decimal list-inside space-y-2 text-xs leading-relaxed text-slate-600 pl-1">
+							<li>Klik ikon <strong>Setelan Situs / Gembok</strong> di sebelah kiri bilah alamat browser (URL).</li>
+							<li>Cari opsi <strong>Notifikasi</strong> dan geser ke posisi <strong>Aktif / Izinkan</strong>.</li>
+							<li>Klik tombol <strong>"Saya Sudah Mengizinkan, Coba Lagi"</strong> di bawah.</li>
+						</ol>
+					</el-tab-pane>
+				</el-tabs>
+			</div>
+
+			<template #footer>
+				<div class="flex justify-end gap-2 pt-2">
+					<el-button @click="showPermissionGuideModal = false" class="rounded-xl!"> Tutup </el-button>
+					<el-button type="primary" :loading="submitting" @click="retryActivationAfterPermission" class="rounded-xl! font-bold! bg-blue-600! hover:bg-blue-700!">
+						Saya Sudah Mengizinkan, Coba Lagi
+					</el-button>
+				</div>
+			</template>
+		</el-dialog>
 	</div>
 </template>
 
@@ -298,8 +355,14 @@ const businessError = ref(null); // { message, status }
 const tokenData = ref(null);
 const submitting = ref(false);
 const deviceLabel = ref("");
+const showPermissionGuideModal = ref(false);
+const activeGuideTab = ref("android");
 
 onMounted(() => {
+	subscriptionStore.refreshCapabilities();
+	if (subscriptionStore.capabilities.isIOS) {
+		activeGuideTab.value = "ios";
+	}
 	deviceLabel.value = `${subscriptionStore.capabilities.browserName} (${subscriptionStore.capabilities.isIOS ? "iOS Device" : "Perangkat Aktif"})`;
 	if (!currentToken.value && route.params.token) {
 		currentToken.value = route.params.token;
@@ -378,6 +441,15 @@ async function validateToken() {
 }
 
 async function handleConfirmActivation() {
+	subscriptionStore.refreshCapabilities();
+
+	// Jika izin browser sudah berstatus 'denied', browser tidak akan memunculkan popup asli lagi
+	// Tampilkan panduan buka izin agar pengguna tidak bingung
+	if (subscriptionStore.capabilities.permission === "denied") {
+		showPermissionGuideModal.value = true;
+		return;
+	}
+
 	submitting.value = true;
 	try {
 		const result = await subscriptionStore.activateWithToken(currentToken.value, deviceLabel.value.trim() || undefined);
@@ -392,10 +464,38 @@ async function handleConfirmActivation() {
 		// Arahkan kembali ke dasbor via router.push
 		router.push({ name: "dashboard" });
 	} catch (err) {
-		ElMessage.error(err.message || "Gagal mengaktifkan push subscription.");
+		if (err.isPermissionError || err.classified?.isPermissionError) {
+			// Munculkan popup panduan mengizinkan notifikasi
+			showPermissionGuideModal.value = true;
+			ElMessage.warning({
+				message: "Izin notifikasi belum aktif. Ikuti petunjuk untuk mengizinkan notifikasi di browser.",
+				duration: 5000,
+			});
+		} else if (err.classified?.isNetworkError) {
+			ElMessage.warning({
+				message: err.message || "Gagal terhubung ke server. Token Anda belum terpakai.",
+				duration: 6000,
+			});
+		} else {
+			ElMessage.error(err.message || "Gagal mengaktifkan push subscription.");
+		}
 	} finally {
 		submitting.value = false;
 	}
+}
+
+async function retryActivationAfterPermission() {
+	subscriptionStore.refreshCapabilities();
+	if (subscriptionStore.capabilities.permission === "denied") {
+		ElMessage.warning({
+			message: 'Izin notifikasi masih berstatus diblokir di browser. Pastikan Anda telah mengubahnya menjadi "Izinkan" (Allow) di Pengaturan Situs.',
+			duration: 5000,
+		});
+		return;
+	}
+
+	showPermissionGuideModal.value = false;
+	await handleConfirmActivation();
 }
 
 function formatTypeLabel(type) {
