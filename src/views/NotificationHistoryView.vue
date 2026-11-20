@@ -42,7 +42,7 @@
 		</div>
 
 		<!-- Ringkasan Statistik Kartu (Summary Cards) -->
-		<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 			<!-- Total Notifikasi -->
 			<div id="stat-total-notifications" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex items-center gap-3.5">
 				<div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
@@ -53,7 +53,7 @@
 					<span class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
 						{{ notificationStore.totalCount }}
 					</span>
-					<span class="text-[11px] text-slate-400 block mt-0.5">Pesan tersimpan</span>
+					<span class="text-[11px] text-slate-400 block mt-0.5">Pesan tersimpan tanpa batas</span>
 				</div>
 			</div>
 
@@ -72,7 +72,7 @@
 			</div>
 
 			<!-- Batas Maksimal Jumlah Notifikasi -->
-			<div id="stat-max-notifications-limit" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex items-center gap-3.5">
+			<!-- <div id="stat-max-notifications-limit" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex items-center gap-3.5">
 				<div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
 					<el-icon :size="24"><Coin /></el-icon>
 				</div>
@@ -83,7 +83,7 @@
 					</span>
 					<span class="text-[11px] text-slate-400 block mt-0.5">Kapasitas cache IndexedDB</span>
 				</div>
-			</div>
+			</div> -->
 		</div>
 
 		<!-- Filter & Toolbar -->
@@ -212,10 +212,23 @@
 				</div>
 			</div>
 
-			<!-- Infinite Scroll Trigger / Muat Lebih Banyak Button -->
-			<div v-if="notificationStore.hasMore" id="infinite-scroll-container" class="text-center py-4">
-				<el-button id="btn-load-more" type="primary" plain @click="notificationStore.loadMore" class="rounded-xl! px-6"> Muat Lebih Banyak Notifikasi </el-button>
+			<!-- Lazy Load / Infinite Scroll Sentinel -->
+			<div
+				v-if="notificationStore.hasMore"
+				ref="loadMoreSentinel"
+				id="infinite-scroll-sentinel"
+				class="flex items-center justify-center gap-2 py-5 text-xs font-medium text-slate-500">
+				<el-icon class="is-loading text-blue-600" :size="16"><Loading /></el-icon>
+				<span>{{ isLoadingMore ? "Memuat notifikasi berikutnya..." : "Memuat notifikasi lainnya..." }}</span>
 			</div>
+			<div v-else-if="notificationStore.filteredNotifications.length > 0" id="end-of-notifications" class="text-center py-4 text-xs text-slate-400">
+				Semua {{ notificationStore.filterUnreadOnly ? notificationStore.unreadCount : notificationStore.totalCount }} riwayat notifikasi telah ditampilkan
+			</div>
+
+			<!-- Infinite Scroll Trigger / Muat Lebih Banyak Button -->
+			<!-- <div v-if="notificationStore.hasMore" id="infinite-scroll-container" class="text-center py-4">
+				<el-button id="btn-load-more" type="primary" plain @click="notificationStore.loadMore" class="rounded-xl! px-6"> Muat Lebih Banyak Notifikasi </el-button>
+			</div> -->
 		</div>
 
 		<!-- Modal Dialog Detail Notifikasi Lengkap -->
@@ -289,14 +302,104 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch, nextTick, onMounted, onUnmounted } from "vue";
 import { useNotificationStore } from "../stores/notificationStore.js";
 import { ElMessage } from "element-plus";
-import { Back, Collection, BellFilled, Coin, Check, Delete, Select, Bell } from "@element-plus/icons-vue";
+import { Back, Collection, BellFilled, Check, Delete, Select, Bell, Loading } from "@element-plus/icons-vue";
 
 const notificationStore = useNotificationStore();
 const showDetailModal = ref(false);
 const selectedItem = ref(null);
+const loadMoreSentinel = ref(null);
+const isLoadingMore = ref(false);
+
+let observer = null;
+let loadTimer = null;
+let isComponentMounted = true;
+
+async function triggerLoadMore() {
+	if (!notificationStore.hasMore || isLoadingMore.value) return;
+	isLoadingMore.value = true;
+	await new Promise((resolve) => {
+		loadTimer = setTimeout(resolve, 150);
+	});
+	if (!isComponentMounted) return;
+	notificationStore.loadMore();
+	isLoadingMore.value = false;
+	await nextTick();
+	checkAndLoadIfVisible();
+}
+
+function checkAndLoadIfVisible() {
+	if (!isComponentMounted || !loadMoreSentinel.value || !notificationStore.hasMore || isLoadingMore.value) return;
+	const rect = loadMoreSentinel.value.getBoundingClientRect();
+	if (rect.top <= window.innerHeight + 120) {
+		triggerLoadMore();
+	}
+}
+
+function setupIntersectionObserver() {
+	if (observer) {
+		observer.disconnect();
+		observer = null;
+	}
+	if (!loadMoreSentinel.value || typeof IntersectionObserver === "undefined") return;
+
+	observer = new IntersectionObserver(
+		(entries) => {
+			const entry = entries[0];
+			if (entry && entry.isIntersecting) {
+				triggerLoadMore();
+			}
+		},
+		{
+			root: null,
+			rootMargin: "120px 0px",
+			threshold: 0.05,
+		},
+	);
+	observer.observe(loadMoreSentinel.value);
+}
+
+watch(loadMoreSentinel, (el) => {
+	if (el) {
+		setupIntersectionObserver();
+		nextTick(() => checkAndLoadIfVisible());
+	} else if (observer) {
+		observer.disconnect();
+	}
+});
+
+watch(
+	() => notificationStore.filterUnreadOnly,
+	async () => {
+		notificationStore.resetDisplayCount();
+		await nextTick();
+		setupIntersectionObserver();
+		checkAndLoadIfVisible();
+	},
+);
+
+onMounted(() => {
+	isComponentMounted = true;
+	notificationStore.resetDisplayCount();
+	nextTick(() => {
+		setupIntersectionObserver();
+		checkAndLoadIfVisible();
+	});
+});
+
+onUnmounted(() => {
+	isComponentMounted = false;
+	if (loadTimer) {
+		clearTimeout(loadTimer);
+		loadTimer = null;
+	}
+	if (observer) {
+		observer.disconnect();
+		observer = null;
+	}
+});
 
 function openDetail(item) {
 	selectedItem.value = item;

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import notificationDb, { MAX_NOTIFICATIONS_LIMIT } from '../services/indexedDb.js';
+import notificationDb from '../services/indexedDb.js';
 
 export const useNotificationStore = defineStore('notification', {
 	state: () => ({
@@ -7,7 +7,6 @@ export const useNotificationStore = defineStore('notification', {
 		unreadCount: 0,
 		filterUnreadOnly: false,
 		loading: false,
-		maxLimit: MAX_NOTIFICATIONS_LIMIT,
 		displayCount: 10,
 		selectedNotification: null,
 		isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true
@@ -169,9 +168,17 @@ export const useNotificationStore = defineStore('notification', {
 		},
 
 		/**
-		 * Muat lebih banyak (Infinite Scroll pagination)
+		 * Reset jumlah tampilan awal untuk lazy load
+		 */
+		resetDisplayCount() {
+			this.displayCount = 10;
+		},
+
+		/**
+		 * Muat lebih banyak (Lazy Load / Infinite Scroll pagination)
 		 */
 		loadMore() {
+			if (!this.hasMore) return;
 			this.displayCount += 10;
 		},
 

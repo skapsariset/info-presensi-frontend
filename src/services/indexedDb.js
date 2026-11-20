@@ -3,7 +3,6 @@ import { openDB } from 'idb';
 const DB_NAME = 'skapsa_presensi_db';
 const DB_VERSION = 1;
 const STORE_NAME = 'notifications';
-export const MAX_NOTIFICATIONS_LIMIT = 100;
 
 /**
  * Menghasilkan ID deterministik untuk notifikasi agar seragam antara Service Worker dan Frontend.
@@ -163,17 +162,6 @@ export const notificationDb = {
 			};
 
 			await db.put(STORE_NAME, record);
-
-			// Pangkas otomatis jika melebihi batas maksimal jumlah notifikasi
-			const updatedAll = await this.getAll();
-			if (updatedAll.length > MAX_NOTIFICATIONS_LIMIT) {
-				const excess = updatedAll.slice(MAX_NOTIFICATIONS_LIMIT);
-				const tx = db.transaction(STORE_NAME, 'readwrite');
-				for (const oldItem of excess) {
-					tx.store.delete(oldItem.id);
-				}
-				await tx.done;
-			}
 
 			return record;
 		} catch (error) {
