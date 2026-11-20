@@ -224,11 +224,6 @@
 			<div v-else-if="notificationStore.filteredNotifications.length > 0" id="end-of-notifications" class="text-center py-4 text-xs text-slate-400">
 				Semua {{ notificationStore.filterUnreadOnly ? notificationStore.unreadCount : notificationStore.totalCount }} riwayat notifikasi telah ditampilkan
 			</div>
-
-			<!-- Infinite Scroll Trigger / Muat Lebih Banyak Button -->
-			<!-- <div v-if="notificationStore.hasMore" id="infinite-scroll-container" class="text-center py-4">
-				<el-button id="btn-load-more" type="primary" plain @click="notificationStore.loadMore" class="rounded-xl! px-6"> Muat Lebih Banyak Notifikasi </el-button>
-			</div> -->
 		</div>
 
 		<!-- Modal Dialog Detail Notifikasi Lengkap -->

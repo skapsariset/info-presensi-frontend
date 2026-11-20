@@ -1,5 +1,5 @@
 // Service Worker for Info Presensi SKAPSA
-const CACHE_NAME = 'skapsa-pwa-v9';
+const CACHE_NAME = 'skapsa-pwa-v10';
 const ASSETS_TO_CACHE = [
 	'/',
 	'/index.html',
